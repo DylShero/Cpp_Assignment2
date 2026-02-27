@@ -72,13 +72,91 @@ class Gaussian
 // Put member function defintions below here
 //
 
+Gaussian::Gaussian(const Gaussian& rhs) : mu{rhs.mu}, sigma{rhs.sigma} {
+    std::print("Gaussian Copy Constructor called");
+}
+
+Gaussian & Gaussian::operator=(const Gaussian &rhs) {
+    if (this == &rhs) { //Check to make sure not trying to copy the itself
+        return *this; 
+    }
+
+    mu = rhs.mu;
+    sigma = rhs.sigma;
+
+    return *this; //returns reference to current gaussian object.
+
+}
+
+void Gaussian::print_parameters() const {
+    std::print("Normal distribution with mean {} and standard deviation {}\n", this.mu, this.sigma);
+}
+
+double Gaussian::pdf(double const x) const {
+    double z = normalised(x); 
+    double coefficient = 1.0 / (sigma * std::sqrt(2.0 * MYPI));
+    return coefficient * std::exp(-0.5 * z * z);
+}
+
+double Gaussian::cdf(double const x) const {
+    double z = normalised(x);
+    // Implements Eq. 2: 0.5 * erfc(-z / sqrt(2))
+    return 0.5 * std::erfc(-z / std::sqrt(2.0));
+}
+
+double Gaussian::inverse_cdf(double z) const {
+    // Constants from Abramowitz & Stegun
+    double const c0 = 2.515517;
+    double const c1 = 0.802853;
+    double const c2 = 0.010328;
+    
+    double const d1 = 1.432788;
+    double const d2 = 0.189269;
+    double const d3 = 0.001308;
+    
+    // Determine which half of the distribution we are in
+    bool is_lower_half = (z < 0.5);
+    
+    // Uif z >= 0.5 use 1 - z
+    double p;
+
+    if (is_lower_half) {
+        p = z;
+    } else {
+        p = 1.0 - z;
+    }
+    
+    // Calculate t = sqrt(ln(1 / p^2)) which simplifies to sqrt(-2 * ln(p))
+    double t = std::sqrt(-2.0 * std::log(p));
+    
+    // Horner's Method for the numerator and denominator polynomials
+    double numerator = c0 + t * (c1 + t * c2);
+    double denominator = 1.0 + t * (d1 + t * (d2 + t * d3));
+    
+    // Calculate standard normal value
+    double z_std = t - (numerator / denominator);
+    
+    // Apply symmetry for the lower half of the distribution
+    if (is_lower_half) {
+        z_std = -z_std;
+    }
+    
+    // Transform standard z_std back to x in N(mu, sigma^2)
+    return z_std * sigma + mu;
+}
+
 
 /// TODO
 // Non-Member Functions
 // These are just another way to get same functionality.
-// void print_parameters(const Gaussian & dist);
-// double pdf(const Gaussian & dist, double x);
-// double cdf(const Gaussian & dist, const double x);
+void print_parameters(const Gaussian & dist){
+    std::print("Normal distribution with mean {} and standard deviation {}\n", dist.get_mu(), dist.get_sigma());
+}
+double pdf(const Gaussian & dist, double x){
+    double z = dist.normalised(x); 
+    double coefficient = 1.0 / (dist.get_sigma() * std::sqrt(2.0 * MYPI));
+    return coefficient * std::exp(-0.5 * z * z);
+}
 
 
 /// TODO Write the function defintion for this function below main
@@ -125,7 +203,7 @@ int main()
     // Print parameters of A, followed by an example CDF calculation using the free functions.
     std::println("Checking Free functions");
     std::println("PDF of A at x=1 is {:.12f}", pdf(A,1.0));
-    std::println("CDF of A at x=2 is {:.12f}\n", cdf(A,2.0));
+    //std::println("CDF of A at x=2 is {:.12f}\n", cdf(A,2.0)); Commented out this line as not implementing free function version of inverse_cdf
 
     // Copy-and-swap
     Gaussian temp {A};
@@ -134,10 +212,10 @@ int main()
 
     print_parameters(A);
     std::println("Inverse CDF for A with Phi=0.4  is {:.6f}"  , A.inverse_cdf(0.4));
-    std::println("Inverse CDF for A with Phi=0.5  is {:.6f}\n", inverse_cdf(A, 0.5));
+    //std::println("Inverse CDF for A with Phi=0.5  is {:.6f}\n", inverse_cdf(A, 0.5)); Commented out this and line below as not implementing free function version of inverse_cdf
     print_parameters(B);
     std::println("Inverse CDF for B with Phi=0.25 is {:.6f}"  , B.inverse_cdf(0.25));
-    std::println("Inverse CDF for B with Phi=0.68 is {:.6f}\n", inverse_cdf(B, 0.68));
+    //std::println("Inverse CDF for B with Phi=0.68 is {:.6f}\n", inverse_cdf(B, 0.68));
 
 
     // Generate file of Gaussian distributed RNGs
@@ -146,4 +224,6 @@ int main()
 
     return 0;
 }
+
+
 
