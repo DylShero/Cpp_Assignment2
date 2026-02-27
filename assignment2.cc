@@ -32,11 +32,21 @@ constexpr double MYPI {4 * std::atan(1.0)};
 class Gaussian
 {
     public:
-	Gaussian (); 				// Default Constructor    // WRITE DEFINITION INLINE
-	Gaussian (double const mean, double const stdev); 	// Overloaded constructor // WRITE DEFINITION INLINE
-	double get_mu() const; 						// WRITE DEFINITON INLINE !!
-	double get_sigma() const; 					// WRITE DEFINITON INLINE !!
-	double normalised(double const x) const; 				// return normalized z value  // WRITE DEFINITION INLINE
+	Gaussian (): mu {0}, sigma{1} { 				// Default Constructor    // WRITE DEFINITION INLINE
+        std::print("Constructing default with mean 0.0 and stdev 1.0\n" );
+    }
+	Gaussian (double const mean, double const stdev): mu{mean}, sigma{stdev}{ 	// Overloaded constructor // WRITE DEFINITION INLINE
+        std::print("Constructing with mean {} and stdev {}", mu, sigma);
+    }
+	double get_mu() const { 						// WRITE DEFINITON INLINE !!
+        return mu;
+    }
+	double get_sigma() const {					// WRITE DEFINITON INLINE !!
+        return sigma;
+    }
+	double normalised(double const x) const{				// return normalized z value  // WRITE DEFINITION INLINE
+        return (x - mu) / sigma;
+    }
 
 	// Write remaining member function definitions outside of class body
 	Gaussian(const Gaussian& rhs); 					// Copy constructor
