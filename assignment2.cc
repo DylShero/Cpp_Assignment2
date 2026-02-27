@@ -89,7 +89,7 @@ Gaussian & Gaussian::operator=(const Gaussian &rhs) {
 }
 
 void Gaussian::print_parameters() const {
-    std::print("Normal distribution with mean {} and standard deviation {}\n", this.mu, this.sigma);
+    std::print("Normal distribution with mean {} and standard deviation {}\n", this->mu, this->sigma);
 }
 
 double Gaussian::pdf(double const x) const {
@@ -223,6 +223,26 @@ int main()
     generate_file_of_rngs(A, "output.txt", 12345, 1'000'000);
 
     return 0;
+}
+
+void generate_file_of_rngs(const Gaussian& dist, std::string filename, int seed, int N){
+    std::ofstream outputFile {filename}; 		
+	if(!outputFile.is_open()){
+        std::println(stderr,"Error opening {}",  filename);
+		std::exit(EXIT_FAILURE);
+	}
+
+	std::srand(seed);
+
+    for (int i = 0; i < N; ++i) {
+        double u = (static_cast<double>(std::rand())) /(RAND_MAX); //Casting because rand returns an INT and needs to be in double for calculation
+        
+        double normal_num = dist.inverse_cdf(u);
+        
+        outputFile << normal_num << '\n';
+    }
+
+    //File will auto close when loop is done
 }
 
 

@@ -1,6 +1,6 @@
 CXX 		:= g++
 CXXFLAGS 	:= --std=c++23 -Wextra -Wall  
-LDFLAGS 	:= 
+LDFLAGS 	:= -lstdc++exp
 
 
 SRCS 		:= assignment2.cc
