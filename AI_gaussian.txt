@@ -1,0 +1,58 @@
+
+
+I used Claude Sonnet 4.6 with the prompt "I need you to generate a C++ class to represent a Gaussian"
+To generate the class in AI_gaussian.cc
+
+The class starts off be declaring the public functions.
+
+It declares a default constructor with a mean of 0.0 and standard deviation of 1.0 using member 
+initialisation lists. Normally you would let the compiler create a default constructor for you but
+in the case of a gaussian distribtion having these default values makes sense.
+
+Next a constructor with two input parameters for the mean and stdev are defined. With error
+checking on the standard deviation to make sure it is greater than 0.0.
+
+It then gives accessor(getter) functions for mean, standard deviation(sigma) and variance. Though
+in class we were told often these are unnessecary when they provide no additional functionality 
+outside of giving the variables values. The variance getter does calculate the variance in the
+getter but the other two only return the value. 
+
+It then defines four member functions for pdf, cdf, inverse cdf and log of the pdf.
+All four of these are defined as const which makes sense as none of these functions should change
+any of the variables defined in the class.
+
+It then overloads two operators the + and * operators. Both of these are const and the + operator
+takes a const reference to another gaussian object. The * operator accepts a double value.
+
+Then there is a const member function which gives a single random sample from a gaussian distribtion.
+This function takes a input of a mt19937 from the standard library. This is a type of random number
+generator which allows you to get the random output. It then uses a standard library container called
+normal_distribution to store the sample and returns the normal_distribution sample.
+
+There are three more member functions listed under utilites. The first returns the z score of the object.
+The second one calculates the KL divergence. It is a const function the accepts a const reference to
+another gaussian object. The last utility function is a to_string function to allow the mean and 
+standard deviation values be easily printed in string format. All three of these functions are const
+as none modify any values in the class.
+
+The access modifier is changed to private and two double variables are defined for mean and sigma.
+
+There is then a static helper function called rational_approx which is called in the inverse cdf 
+function. Static means it is function that is directly tied to the class and not to any object of the
+class. This function makes sense to be in the class as it only makes sense when operating within the
+context of the class. I couldn't find any C++ guideline that would explain why you would necessarily
+make this function static. While this part of the function does not need access to the member variables
+it is used in the inverse cdf function which does require member variables. The inverse cdf function
+does not do much more work and functionally serves as a wrapper for the rational_approx function.
+The splitting of these function can be justified under the guideline F.2 where a function should do a
+single logical function but I do not know if it necessarily does deserve being split as I do not know
+if you would need to use rational_approx in another context.
+
+The final part of the file is a function declared outside the class which is to overload the * 
+operator to deal with scalar by gaussian multiplication when the scalar is written on the left side.
+It uses the inline keyword to tell the compiler to try to inline the function when called. The purpose
+of the function is to deal with compiler errors from when you try to multiply a scaler on the left
+with an object of the gaussian class on the right. It simply calls the multiplication in the reverse
+order which will use the overloaded operator of the class which was written earlier.
+
+
